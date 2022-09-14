@@ -8,7 +8,7 @@ interface Item {
   quantity: number;
 }
 
-interface cart {
+interface ICart {
   items: Item[];
 }
 
@@ -16,7 +16,7 @@ interface IUser {
   name: string;
   email: string;
   password: string;
-  cart: cart;
+  cart: ICart;
 
 }
 

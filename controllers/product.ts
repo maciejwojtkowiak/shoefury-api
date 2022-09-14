@@ -4,7 +4,7 @@ import Product from '../models/product';
 interface IProduct {
   title: string;
   price: string;
-  imageUrl: string;
+  imageData: string;
 }
 
 export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) => {
@@ -14,7 +14,7 @@ export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) 
   const product = new Product({
     title: title,
     price: price,
-    imageUrl: req.file?.path,
+    imageData: req.file ? encodeBase64(req.file?.path) : "" ,
   });
 
   await product.save();
