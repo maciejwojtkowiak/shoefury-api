@@ -12,7 +12,7 @@ const product = new Schema<IProduct>(
       type: String,
       required: true,
     },
-    imageUrl: {
+    imageData: {
       type: String,
       required: true,
     },

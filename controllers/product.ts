@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Product from '../models/product';
+import { encodeBase64 } from '../utils/encodeBase64';
 
 interface IProduct {
   title: string;
@@ -10,11 +11,12 @@ interface IProduct {
 export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) => {
   const title = req.body.title;
   const price = req.body.price;
-
+  const image = req.file ? encodeBase64(req.file.path) : ""
+  console.log('IMAGE', image)
   const product = new Product({
     title: title,
     price: price,
-    imageData: req.file ? encodeBase64(req.file?.path) : "" ,
+    imageData: image,
   });
 
   await product.save();

@@ -4,5 +4,5 @@ export interface IProduct {
   _id: ObjectId;
   title: string;
   price: string;
-  imageUrl: string;
+  imageData: string;
 }

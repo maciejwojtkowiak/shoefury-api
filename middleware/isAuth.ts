@@ -13,12 +13,14 @@ interface IUserPayload {
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.get('Authorization')!.split(' ')[1];
   let decodedToken;
+  console.log('IS AUTH')
 
   try {
     decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IUserPayload;
   } catch (err) {
     const error = new Error('Not authenticated') as CustomError;
     error.status = 401;
+    console.log(err)
     next(error);
   }
   if (!decodedToken) {

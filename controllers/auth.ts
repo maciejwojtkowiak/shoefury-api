@@ -62,8 +62,10 @@ export const isAuth = async (req: Request, res: Response) => {
   if (token) {
     try {
       const decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`);
+      console.log('token', decodedToken)
       if (decodedToken) res.status(200).json({ isAuth: true });
-    } catch (e) {
+    } catch (error) {
+      console.log("ERROR", error)
       res.status(401).json({ isAuth: false });
     }
   } else res.status(401).json({ isAuth: false });
