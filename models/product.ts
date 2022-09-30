@@ -4,6 +4,10 @@ const { Schema } = mongoose;
 
 const product = new Schema<IProduct>(
   {
+    description: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,

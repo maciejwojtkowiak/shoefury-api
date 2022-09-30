@@ -4,6 +4,6 @@ import { addToCart, getCart } from '../controllers/cart';
 const router = express.Router();
 
 router.post('/add', isAuth, addToCart);
-router.get('/get-cart', isAuth, getCart);
+router.get('/get-cart', isAuth,  getCart);
 
 export default router;

@@ -3,6 +3,7 @@ import Product from '../models/product';
 import { encodeBase64 } from '../utils/encodeBase64';
 
 interface IProduct {
+  description: string;
   title: string;
   price: string;
   imageData: string;
@@ -11,12 +12,11 @@ interface IProduct {
 export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) => {
   const title = req.body.title;
   const price = req.body.price;
-  const image = req.file ? encodeBase64(req.file.path) : ""
-  console.log('IMAGE', image)
+  const description = req.body.description
+  const imageData = req.file ? encodeBase64(req.file.path) : ""
+  
   const product = new Product({
-    title: title,
-    price: price,
-    imageData: image,
+    description, title, price, imageData
   });
 
   await product.save();

@@ -8,8 +8,9 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
   const addedProduct = (await Product.findOne({
     title: req.body.productTitle,
   })) as IProduct;
+  console.log("USER", currentUser)
 
-  const cartItem = currentUser!.cart.items.find(
+  const cartItem = currentUser!.cart.find(
     (item) => item.product.toString() === addedProduct._id.toString()
   );
 
@@ -17,10 +18,8 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
     cartItem.quantity++;
   }
   if (!cartItem) {
-    const cartItems = currentUser!.cart.items;
-    const updatedCart = {
-      items: [...cartItems, { product: addedProduct._id, quantity: 1 }],
-    };
+    const cartItems = currentUser!.cart;
+    const updatedCart = [...cartItems, { product: addedProduct._id, quantity: 1 }]
     currentUser!.cart = updatedCart;
   }
 

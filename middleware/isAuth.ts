@@ -14,6 +14,7 @@ export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.get('Authorization')!.split(' ')[1];
   let decodedToken;
   console.log('IS AUTH')
+  console.log("TOKEN", token)
 
   try {
     decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IUserPayload;
