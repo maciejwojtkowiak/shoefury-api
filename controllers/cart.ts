@@ -10,7 +10,7 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
   }) as IProduct;
 
   const cartItem = currentUser!.cart.items.find(
-    (item) => item.product.toString() === addedProduct._id.toString()
+    (item) => item.productId.toString() === addedProduct._id.toString()
   );
 
   if (cartItem) {
@@ -18,7 +18,7 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
   }
   if (!cartItem) {
     const cartItems = currentUser!.cart.items;
-    const updatedCart = [...cartItems, { product: addedProduct._id, quantity: 1 }]
+    const updatedCart = [...cartItems, { productId: addedProduct._id, quantity: 1 }]
     currentUser!.cart.items = updatedCart;
   }
 
@@ -40,7 +40,7 @@ export const deleteItemFromCart = async (req: Request, res: Response) => {
   const cartItem =  currentUser!.cart.items.find(product => product.toString() === productIdToDelete)
   console.log("CARTITEM", cartItem)
   if (cartItem!.quantity === 1) {
-    currentUser!.cart.items.filter(product => product.product.toString() !== productIdToDelete)
+    currentUser!.cart.items.filter(product => product.productId.toString() !== productIdToDelete)
   }
 
   if (cartItem!.quantity < 1) {

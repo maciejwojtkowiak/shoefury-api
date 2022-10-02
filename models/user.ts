@@ -1,11 +1,10 @@
 import mongoose, { Model, ObjectId, Schema } from 'mongoose';
 
 import bcrypt from 'bcrypt';
-import { IProduct } from '../types/Product';
 
 
 interface Item {
-  product: ObjectId;
+  productId: ObjectId;
   quantity: number;
 }
 
@@ -40,7 +39,7 @@ const user = new Schema<IUser, UserModel, IUserMethods>({
   cart: {
     items: [
       {
-        product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+        productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true },
       },
     ],
