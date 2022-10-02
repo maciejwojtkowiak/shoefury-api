@@ -8,13 +8,16 @@ interface Item {
   quantity: number;
 }
 
+interface ICart {
+  items: Item[]
+}
 
-interface IUser {
+
+export interface IUser {
   name: string;
   email: string;
   password: string;
-  cart: Item[];
-
+  cart: ICart
 }
 
 interface IUserMethods {
@@ -33,12 +36,14 @@ const user = new Schema<IUser, UserModel, IUserMethods>({
     type: String,
     required: true,
   },
-  cart: [
+  cart: {
+    items: [
       {
         product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true },
       },
     ],
+  },
 
   password: {
     type: String,

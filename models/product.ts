@@ -21,7 +21,6 @@ const product = new Schema<IProduct>(
       required: true,
     },
   },
-
   { collection: 'products', timestamps: true }
 );
 

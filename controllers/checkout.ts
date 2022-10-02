@@ -26,7 +26,6 @@ export const createCheckout = async (
         product_data: {
           name: product.product.title,
           description: product.product.title,
-         
         },
       },
       quantity: product.quantity,
