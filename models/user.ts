@@ -1,6 +1,7 @@
 import mongoose, { Model, ObjectId, Schema } from 'mongoose';
 
 import bcrypt from 'bcrypt';
+import { IProduct } from '../types/Product';
 
 
 interface Item {

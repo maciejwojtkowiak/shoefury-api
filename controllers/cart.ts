@@ -5,9 +5,9 @@ import { IProduct } from '../types/Product';
 
 export const addToCart = async (req: Request, res: Response, next: NextFunction) => {
   const currentUser = await User.findOne({ _id: req.body.userId });
-  const addedProduct = (await Product.findOne({
+  const addedProduct = await Product.findOne({
     title: req.body.productTitle,
-  })) as IProduct;
+  }) as IProduct;
 
   const cartItem = currentUser!.cart.items.find(
     (item) => item.product.toString() === addedProduct._id.toString()
@@ -28,15 +28,26 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
 
 export const getCart = async (req: Request, res: Response) => {
   const currentUser = await User.findOne({ _id: req.body.userId });
-  const cart = await currentUser!.populate('cart');
-  console.log("CART", cart)
-  console.log("USER", currentUser)
-  res.status(200).json({ cart });
+  const cart = await currentUser!.populate('cart.items.product');
+  res.status(200).json({ cart: cart });
 };
 
 export const deleteItemFromCart = async (req: Request, res: Response) => {
-  const currentUser = await User.findOne({_id: req.body.userId}) as IUser;
-  const products = currentUser!.cart
-  console.log(products, "PRODS")
-  res.status(200).json({products: "hej"})
+  const currentUser = await User.findOne({_id: req.body.userId});
+  const productIdToDelete = req.body.productId
+  console.log("PRODUCTID", productIdToDelete)
+  console.log('ITEMS', currentUser!.cart.items )
+  const cartItem =  currentUser!.cart.items.find(product => product.toString() === productIdToDelete)
+  console.log("CARTITEM", cartItem)
+  if (cartItem!.quantity === 1) {
+    currentUser!.cart.items.filter(product => product.product.toString() !== productIdToDelete)
+  }
+
+  if (cartItem!.quantity < 1) {
+    cartItem!.quantity -= 1
+  }
+  await currentUser!.save()
+  const cart = currentUser!.cart
+
+  res.status(200).json({cart})
 }
