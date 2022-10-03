@@ -1,14 +1,19 @@
 import { Response, Request } from 'express';
+import { ObjectId } from 'mongoose';
+
 import { IProduct } from '../types/Product';
 import { stripeInstance } from '../utils/stripe';
-
-interface ClientProduct {
+interface ICartItem {
   product: IProduct;
-  quantity: string;
+  quantity: number;
+}
+
+export interface ICart {
+  items: ICartItem[];
 }
 
 interface ICheckoutRequestBody {
-  products: ClientProduct[];
+  items: ICartItem[];
 }
 
 export const createCheckout = async (
@@ -16,7 +21,7 @@ export const createCheckout = async (
   res: Response
 ) => {
   const productsArr: any = [];
-  const products = req.body.products;
+  const products = req.body.items;
   console.log(products);
   products.forEach((product) =>
     productsArr.push({
