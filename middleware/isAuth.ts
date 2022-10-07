@@ -11,7 +11,7 @@ interface IUserPayload {
   userId: string;
 }
 
-// const authError = errorModel('Not authenticated', 401);
+const authError = errorModel('Not authenticated', 401);
 
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.get('Authorization')!.split(' ')[1];
@@ -20,13 +20,11 @@ export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
     decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IUserPayload;
   } catch (err) {
-    const error = new Error("Not auth") as CustomError;
-    error.status = 401;
-    next(error);
+    next(authError);
   }
-  // if (!decodedToken) {
-  //   next(notAuthError);
-  // }
+  if (!decodedToken) {
+    next(authError);
+  }
 
   req.body.userId = decodedToken?.userId;
   next();

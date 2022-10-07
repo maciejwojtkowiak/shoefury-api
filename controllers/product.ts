@@ -9,7 +9,9 @@ interface IProduct {
   imageData: string;
 }
 
-export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) => {
+export const addProduct = async (req: Request<{}, {}, any>, res: Response) => {
+  console.log( "PRODUCT HALO", req.body)
+  console.log( "PRODUCT HALO", req.body)
   const title = req.body.title;
   const price = req.body.price;
   const description = req.body.description
@@ -18,6 +20,7 @@ export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) 
   const product = new Product({
     description, title, price, imageData
   });
+  console.log(product, "PRODUCT")
 
   await product.save();
   res.status(201).json({ message: 'added successfully' });

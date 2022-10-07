@@ -35,10 +35,7 @@ export const getCart = async (req: Request, res: Response) => {
 export const deleteItemFromCart = async (req: Request, res: Response) => {
   const currentUser = await User.findOne({_id: req.body.userId});
   const productIdToDelete = req.body.productId
-  console.log("PRODUCTID", productIdToDelete)
-  console.log('ITEMS', currentUser!.cart.items )
   const cartItem =  currentUser!.cart.items.find(product => product.toString() === productIdToDelete)
-  console.log("CARTITEM", cartItem)
   if (cartItem!.quantity === 1) {
     currentUser!.cart.items.filter(product => product.product.toString() !== productIdToDelete)
   }
