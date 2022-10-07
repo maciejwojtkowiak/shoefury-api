@@ -45,7 +45,7 @@ app.use('/checkout', checkoutRoutes);
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction) => {
   const status = error.status || 500;
   const message = error.message || 'Something went wrong';
-  res.status(status).json({ message: message });
+  res.status(status).json({message: "TEST WRONG"});
 });
 
 const startServer = async () => {

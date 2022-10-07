@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import { CustomError } from "../types/Error";
+import { errorModel } from "../utils/error";
 
 interface RegisterData {
   name: string;
@@ -58,16 +59,17 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const isAuth = async (req: Request, res: Response) => {
+export const isAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.get("Authorization")?.split(" ")[1];
   if (token) {
     try {
       const decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`);
       console.log('token', decodedToken)
-      if (decodedToken) res.status(200).json({ isAuth: true });
+      if (decodedToken) next(new Error("Not auth") as CustomError);
     } catch (error) {
-      console.log("ERROR", error)
-      res.status(401).json({ isAuth: false });
+      const err = new Error("Not auth") as CustomError;
+      err.status = 401;
+      next(err)
     }
-  } else res.status(401).json({ isAuth: false });
+  } else next(new Error("Not auth") as CustomError);
 };
