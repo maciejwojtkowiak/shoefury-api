@@ -25,7 +25,6 @@ export const createCheckout = async (
 ) => {
   const productsArr: any = [];
   const products = req.body.items;
-  console.log(products);
   products.forEach((product) =>
     productsArr.push({
       price_data: {
@@ -43,15 +42,18 @@ export const createCheckout = async (
   const session = await stripeInstance.checkout.sessions.create({
     line_items: productsArr,
     mode: 'payment',
-    success_url: `${frontendDomain}/${FrontendPaths.successOrder}`,
+    success_url: `${frontendDomain}/${FrontendPaths.successOrder}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${frontendDomain}`,
   });
 
-  res.json({ url: session.url });
+  res.status(200).json({ url: session.url });
 };
 
 
 export const successOrder = async (req: Request, res: Response) => {
-  const session = await stripeInstance.checkout.sessions.retrieve(req.params.session_id)
+  console.log(req.query.session_id, "PARAMS")
+  const session = await stripeInstance.checkout.sessions.retrieve(req.query.session_id as string)
   const cost = session.amount_total
+  console.log('COST', cost)
+  res.status(200).json({cost: cost})
 }

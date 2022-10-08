@@ -18,7 +18,7 @@ export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) 
   const product = new Product({
     description, title, price, imageData
   });
-  console.log(product, "PRODUCT")
+  
 
   await product.save();
   res.status(201).json({ message: 'added successfully' });
