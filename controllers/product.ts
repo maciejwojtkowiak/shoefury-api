@@ -9,9 +9,7 @@ interface IProduct {
   imageData: string;
 }
 
-export const addProduct = async (req: Request<{}, {}, any>, res: Response) => {
-  console.log( "PRODUCT HALO", req.body)
-  console.log( "PRODUCT HALO", req.body)
+export const addProduct = async (req: Request<{}, {}, IProduct>, res: Response) => {
   const title = req.body.title;
   const price = req.body.price;
   const description = req.body.description

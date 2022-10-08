@@ -1,5 +1,8 @@
 import { Response, Request } from 'express';
 import { ObjectId } from 'mongoose';
+import Stripe from 'stripe';
+import { frontendDomain } from '../config/config';
+import { FrontendPaths } from '../config/FrontendPaths';
 
 import { IProduct } from '../types/Product';
 import { stripeInstance } from '../utils/stripe';
@@ -40,9 +43,15 @@ export const createCheckout = async (
   const session = await stripeInstance.checkout.sessions.create({
     line_items: productsArr,
     mode: 'payment',
-    success_url: 'http://localhost:3000',
-    cancel_url: 'http://localhost:3000',
+    success_url: `${frontendDomain}/${FrontendPaths.successOrder}`,
+    cancel_url: `${frontendDomain}`,
   });
 
   res.json({ url: session.url });
 };
+
+
+export const successOrder = async (req: Request, res: Response) => {
+  const session = await stripeInstance.checkout.sessions.retrieve(req.params.session_id)
+  const cost = session.amount_total
+}
