@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
-const order = new Schema({
+export interface IOrder {
+   totalPrice: number;
+}
+
+const order = new Schema<IOrder>({
    totalPrice: {
     type: Number,
     required: true,

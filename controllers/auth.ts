@@ -20,6 +20,7 @@ export const register = async (req: Request<{}, {}, RegisterData>, res: Response
   user.name = name;
   user.email = email;
   user.cart.items = []
+  user.orders = []
   const salt = await bcrypt.genSalt(10)
   user.password = await bcrypt.hash(password, salt);
   await user.save();

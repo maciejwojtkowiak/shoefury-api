@@ -1,6 +1,7 @@
 import mongoose, { Model, ObjectId, Schema } from 'mongoose';
 
 import bcrypt from 'bcrypt';
+import { IOrder } from './order';
 
 
 interface Item {
@@ -17,7 +18,8 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
-  cart: ICart
+  orders: IOrder[];
+  cart: ICart;
 }
 
 interface IUserMethods {
@@ -44,7 +46,9 @@ const user = new Schema<IUser, UserModel, IUserMethods>({
       },
     ],
   },
-
+  orders: {
+   
+  },
   password: {
     type: String,
   },
