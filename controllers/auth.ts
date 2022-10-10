@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import { CustomError } from "../types/Error";
-import { errorModel } from "../utils/error";
+
 
 interface RegisterData {
   name: string;

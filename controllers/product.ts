@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import Product from '../models/product';
 import { encodeBase64 } from '../utils/encodeBase64';
-import { errorModel } from '../utils/error';
+import { createError } from '../utils/createError';
 
 interface IProduct {
   description: string;
@@ -42,7 +42,7 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       totalProducts: productCount,
     });
   } catch (error) {
-    const getError = errorModel("Products can no be fetched, try again later")
+    const getError = createError("Products can no be fetched, try again later", 500);
     next(getError)
     
   }

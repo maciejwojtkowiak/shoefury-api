@@ -1,35 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { CustomError } from '../types/Error';
-import { errorModel } from '../utils/error';
+import { IAuthUser } from '../types/User';
+import { createError } from '../utils/createError';
 
-interface IUserIdRequest extends Request {
-  userId: string;
-}
 
-interface IUserPayload {
-  userId: string;
-}
 
-const authError = errorModel('Not authenticated', 401);
+
+
+const authError = createError('Not authenticated', 401);
 
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.get('Authorization')!.split(' ')[1];
   let decodedToken;
-  console.log("IS AUTH")
 
   try {
-    decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IUserPayload;
+    decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IAuthUser;
     console.log("DECODED", decodedToken)
-  } catch (err) {
-    console.log(err)
+  } catch (error) {
     next(authError);
   }
   if (!decodedToken) {
-
     next(authError);
-  }
+  } 
 
-  req.body.userId = decodedToken?.userId;
+  if (decodedToken) {
+    req.body.userId = decodedToken.userId;
+  }
   next();
 };
