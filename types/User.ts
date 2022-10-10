@@ -1,3 +1,4 @@
-export interface IAuthUserRequest extends Request {
+export interface IAuthUser {
   userId: string;
 }
+

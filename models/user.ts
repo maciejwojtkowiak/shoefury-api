@@ -20,6 +20,7 @@ export interface IUser {
   password: string;
   orders: IOrder[];
   cart: ICart;
+  profileImage: string;
 }
 
 interface IUserMethods {
@@ -46,12 +47,16 @@ const user = new Schema<IUser, UserModel, IUserMethods>({
       },
     ],
   },
-  orders: {
-   
-  },
+  orders: [
+   {order: {type: Schema.Types.ObjectId, ref: 'Order', required: false }}
+  ],
   password: {
     type: String,
   },
+  profileImage: {
+    type: String,
+    required: false,
+  }
 
 });
 

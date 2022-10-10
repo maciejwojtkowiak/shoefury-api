@@ -7,6 +7,7 @@ import Order from '../models/order';
 import User, { IUser } from '../models/user';
 
 import { IProduct } from '../types/Product';
+import { IAuthUser } from '../types/User';
 import { stripeInstance } from '../utils/stripe';
 interface ICartItem {
   product: IProduct;
@@ -52,7 +53,7 @@ export const createCheckout = async (
 };
 
 
-export const successOrder = async (req: Request, res: Response) => {
+export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Response) => {
   console.log(req.query.session_id, "PARAMS")
   const session = await stripeInstance.checkout.sessions.retrieve(req.query.session_id as string)
   const totalPrice = session.amount_total;
