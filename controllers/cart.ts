@@ -1,13 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
-import User from '../models/user';
 import Product from '../models/product';
 import { IProduct } from '../types/Product';
+import { IAuthUser } from '../types/User';
 import { getUser } from '../utils/user/getUser';
 
-export const addToCart = async (req: Request, res: Response, next: NextFunction) => {
+interface IAddToCart extends IAuthUser {
+  productId: string;
+}
+
+export const addToCart = async (req: Request<{}, {}, IAddToCart >, res: Response, next: NextFunction) => {
   const currentUser = await getUser(req.body.userId);
   const addedProduct = await Product.findOne({
-    title: req.body.productTitle,
+    _id: req.body.productId,
   }) as IProduct;
 
   const cartItem = currentUser!.cart.items.find(
@@ -36,9 +40,9 @@ export const getCart = async (req: Request, res: Response) => {
 export const deleteItemFromCart = async (req: Request, res: Response) => {
   const currentUser = await getUser(req.body.userId);
   const productIdToDelete = req.body.productId
-  const cartItem =  currentUser!.cart.items.find(product => product.toString() === productIdToDelete)
+  const cartItem =  currentUser!.cart.items.find(product => product.product.toString() === productIdToDelete)
   if (cartItem!.quantity === 1) {
-    currentUser!.cart.items.filter(product => product.product.toString() !== productIdToDelete)
+    currentUser!.cart.items = currentUser!.cart.items.filter(product => product.product.toString() !== productIdToDelete)
   }
 
   if (cartItem!.quantity < 1) {
@@ -47,5 +51,5 @@ export const deleteItemFromCart = async (req: Request, res: Response) => {
   await currentUser!.save()
   const cart = currentUser!.cart
 
-  res.status(200).json({cart})
+  res.status(200).json({ cart })
 }
