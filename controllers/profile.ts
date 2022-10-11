@@ -7,7 +7,7 @@ export const getProfile = async (req: Request<{}, {}, IAuthUser>, res: Response,
     const currentUser = await getUser(req.body.userId);
     console.log("USER", currentUser)
     if (currentUser) {
-        res.status(200).json({ name: currentUser.name, profileImage: currentUser.profileImage, orders: currentUser.orders  })
+        res.status(200).json({ name: currentUser.name, profileImage: currentUser.profileImage, orders: currentUser.populate("order")  })
     }
     if (!currentUser) next(createError("No user found", 500))
     

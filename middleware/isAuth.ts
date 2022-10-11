@@ -5,17 +5,18 @@ import { createError } from '../utils/createError';
 
 const authError = createError('Not authenticated', 401);
 
+interface IJwtPayload extends IAuthUser, jwt.JwtPayload {}
+
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.get('Authorization')!.split(' ')[1];
   let decodedToken;
 
   try {
-    decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IAuthUser;
-    console.log("DECODED", decodedToken)
+    decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IJwtPayload
   } catch (error) {
     next(authError);
   }
-  if (!decodedToken) {
+  if (!decodedToken || !decodedToken.userId) {
     next(authError);
   } 
 
