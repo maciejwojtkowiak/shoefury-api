@@ -3,10 +3,6 @@ import jwt from 'jsonwebtoken';
 import { IAuthUser } from '../types/User';
 import { createError } from '../utils/createError';
 
-
-
-
-
 const authError = createError('Not authenticated', 401);
 
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
