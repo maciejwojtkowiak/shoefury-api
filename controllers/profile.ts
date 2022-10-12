@@ -9,7 +9,7 @@ export const getProfile = async (
   next: NextFunction,
 ) => {
   const currentUser = await getUser(req.body.userId);
-  const userOrders = await currentUser!.populate("orders._id");
+  const userOrders = await currentUser!.populate("orders.order");
   console.log("users!!", userOrders);
   if (currentUser) {
     res.status(200).json({
