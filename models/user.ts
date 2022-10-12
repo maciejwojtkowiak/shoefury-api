@@ -28,9 +28,7 @@ interface IUserMethods {
   decryptPasswordSuccess(password: string): void;
 }
 
-type UserModel = Model<IUser, {}, IUserMethods>;
-
-const user = new Schema<IUser, UserModel, IUserMethods>({
+const user = new Schema<IUser, {}, IUserMethods>({
   name: {
     type: String,
     required: true,
@@ -70,5 +68,5 @@ user.method(
   { collection: "users" },
 );
 
-const User = mongoose.model<IUser, UserModel>("User", user);
+const User = mongoose.model<IUser>("User", user);
 export default User;
