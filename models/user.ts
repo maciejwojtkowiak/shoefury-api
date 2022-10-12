@@ -1,8 +1,6 @@
-import mongoose, { Model, ObjectId, Schema } from 'mongoose';
+import mongoose, { Model, ObjectId, Schema } from "mongoose";
 
-import bcrypt from 'bcrypt';
-import { IOrder } from './order';
-
+import bcrypt from "bcrypt";
 
 interface Item {
   product: ObjectId;
@@ -10,15 +8,17 @@ interface Item {
 }
 
 interface ICart {
-  items: Item[]
+  items: Item[];
 }
 
-
+interface IOrderItem {
+  order: ObjectId;
+}
 export interface IUser extends mongoose.Document {
   name: string;
   email: string;
   password: string;
-  orders: IOrder[];
+  orders: IOrderItem[];
   cart: ICart;
   profileImage: string;
 }
@@ -39,34 +39,36 @@ const user = new Schema<IUser, UserModel, IUserMethods>({
     type: String,
     required: true,
   },
+  orders: [
+    {
+      order: { type: Schema.Types.ObjectId, ref: "Order", required: true },
+    },
+  ],
   cart: {
     items: [
       {
-        product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+        product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
         quantity: { type: Number, required: true },
       },
     ],
   },
-  orders: [
-   {order: {type: Schema.Types.ObjectId, ref: 'Order', required: false }}
-  ],
+
   password: {
     type: String,
   },
   profileImage: {
     type: String,
     required: false,
-  }
-
+  },
 });
 
 user.method(
-  'setPassword',
+  "setPassword",
   function setPassword(password) {
     this.password = bcrypt.hash(password, 16);
   },
-  { collection: 'users' }
+  { collection: "users" },
 );
 
-const User = mongoose.model<IUser, UserModel>('User', user);
+const User = mongoose.model<IUser, UserModel>("User", user);
 export default User;

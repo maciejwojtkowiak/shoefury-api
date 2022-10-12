@@ -1,14 +1,13 @@
-import { Response, Request } from 'express';
-import { ObjectId } from 'mongoose';
-import Stripe from 'stripe';
-import { frontendDomain } from '../config/config';
-import { FrontendPaths } from '../config/FrontendPaths';
-import Order from '../models/order';
-import User, { IUser } from '../models/user';
+import { Response, Request } from "express";
 
-import { IProduct } from '../types/Product';
-import { IAuthUser } from '../types/User';
-import { stripeInstance } from '../utils/stripe';
+import { frontendDomain } from "../config/config";
+import { FrontendPaths } from "../config/FrontendPaths";
+import Order from "../models/order";
+import User from "../models/user";
+
+import { IProduct } from "../types/Product";
+import { IAuthUser } from "../types/User";
+import { stripeInstance } from "../utils/stripe";
 interface ICartItem {
   product: IProduct;
   quantity: number;
@@ -24,14 +23,14 @@ interface ICheckoutRequestBody {
 
 export const createCheckout = async (
   req: Request<{}, {}, ICheckoutRequestBody>,
-  res: Response
+  res: Response,
 ) => {
   const productsArr: any = [];
   const products = req.body.items;
   products.forEach((product) =>
     productsArr.push({
       price_data: {
-        currency: 'usd',
+        currency: "usd",
         unit_amount: +product.product.price * 100,
         product_data: {
           name: product.product.title,
@@ -39,12 +38,12 @@ export const createCheckout = async (
         },
       },
       quantity: product.quantity,
-    })
+    }),
   );
 
   const session = await stripeInstance.checkout.sessions.create({
     line_items: productsArr,
-    mode: 'payment',
+    mode: "payment",
     success_url: `${frontendDomain}/${FrontendPaths.successOrder}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${frontendDomain}`,
   });
@@ -52,16 +51,22 @@ export const createCheckout = async (
   res.status(200).json({ url: session.url });
 };
 
-
 export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Response) => {
-  console.log(req.query.session_id, "PARAMS")
-  const session = await stripeInstance.checkout.sessions.retrieve(req.query.session_id as string)
+  console.log(req.query.session_id, "PARAMS");
+  const session = await stripeInstance.checkout.sessions.retrieve(
+    req.query.session_id as string,
+  );
   const totalPrice = session.amount_total;
 
-  const order = new Order({totalPrice})
+  const order = new Order({ totalPrice });
+  await order.save();
+
+  console.log(order, "ORDERED");
   const currentUser = await User.findOne({ _id: req.body.userId });
-  currentUser!.orders.push(order);
-  currentUser!.save();
-  order.save();
-  res.status(200).json({totalPrice: totalPrice})
-}
+  const foundOrder = await Order.findOne({ _id: order._id });
+  currentUser!.orders = [...currentUser!.orders, { order: foundOrder!._id }];
+  await order.save();
+  await currentUser!.save();
+  console.log("CURRENTORDERED", currentUser);
+  res.status(200).json({ totalPrice: totalPrice });
+};
