@@ -1,9 +1,9 @@
-import mongoose, { Model, ObjectId, Schema } from "mongoose";
+import mongoose, { Types, Schema } from "mongoose";
 
 import bcrypt from "bcrypt";
 
 interface Item {
-  product: ObjectId;
+  product: Types.ObjectId;
   quantity: number;
 }
 
@@ -12,7 +12,7 @@ interface ICart {
 }
 
 interface IOrderItem {
-  order: ObjectId;
+  order: Types.ObjectId;
 }
 export interface IUser extends mongoose.Document {
   name: string;
@@ -39,12 +39,14 @@ const user = new Schema<IUser, {}, IUserMethods>({
   },
   orders: [
     {
+      _id: false,
       order: { type: Schema.Types.ObjectId, ref: "Order", required: true },
     },
   ],
   cart: {
     items: [
       {
+        _id: false,
         product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
         quantity: { type: Number, required: true },
       },

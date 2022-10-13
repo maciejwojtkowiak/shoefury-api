@@ -1,7 +1,7 @@
-import mongoose, { ObjectId, Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 export interface IOrder {
-  _id: ObjectId;
+  _id: Types.ObjectId;
   totalPrice: number;
 }
 
