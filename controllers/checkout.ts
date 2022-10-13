@@ -52,7 +52,6 @@ export const createCheckout = async (
 };
 
 export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Response) => {
-  console.log(req.query.session_id, "PARAMS");
   const session = await stripeInstance.checkout.sessions.retrieve(
     req.query.session_id as string,
   );
@@ -60,13 +59,9 @@ export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Respons
 
   const order = new Order({ totalPrice });
   await order.save();
-
-  console.log(order, "ORDERED");
   const currentUser = await User.findOne({ _id: req.body.userId });
-  const foundOrder = await Order.findOne({ _id: order._id });
-  currentUser!.orders = [...currentUser!.orders, { order: foundOrder!._id }];
+  currentUser!.orders = [...currentUser!.orders, { order: order._id }];
   await order.save();
   await currentUser!.save();
-  console.log("CURRENTORDERED", currentUser);
   res.status(200).json({ totalPrice: totalPrice });
 };
