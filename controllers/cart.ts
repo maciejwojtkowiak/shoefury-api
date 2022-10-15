@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Product from "../models/product";
 import { IProduct } from "../types/Product";
 import { IAuthUser } from "../types/User";
+import { createError } from "../utils/createError";
 import { getUser } from "../utils/user/getUser";
 
 interface IAddToCart extends IAuthUser {
@@ -14,10 +15,15 @@ export const addToCart = async (
   next: NextFunction,
 ) => {
   const currentUser = await getUser(req.body.userId);
-  // TO DO duplication
   const addedProduct = (await Product.findOne({
     _id: req.body.productId,
   })) as IProduct;
+  console.log("ADD")
+
+  if (!addedProduct) {
+    next(createError("Product does not exist in database"))
+    return
+  };
 
   const cartItem = currentUser!.cart.items.find(
     (item) => item.product.toString() === addedProduct._id.toString(),
@@ -33,6 +39,7 @@ export const addToCart = async (
   }
 
   await currentUser!.save();
+  console.log("ADD")
   res.status(201).json({ message: "success" });
 };
 

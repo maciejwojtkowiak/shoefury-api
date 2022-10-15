@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 
 import { frontendDomain } from "../config/config";
 import { FrontendPaths } from "../config/FrontendPaths";
@@ -7,6 +7,7 @@ import User from "../models/user";
 
 import { IProduct } from "../types/Product";
 import { IAuthUser } from "../types/User";
+import { createError } from "../utils/createError";
 import { stripeInstance } from "../utils/stripe";
 interface ICartItem {
   product: IProduct;
@@ -24,9 +25,11 @@ interface ICheckoutRequestBody {
 export const createCheckout = async (
   req: Request<{}, {}, ICheckoutRequestBody>,
   res: Response,
+  next: NextFunction,
 ) => {
   const productsArr: any = [];
   const products = req.body.items;
+
   products.forEach((product) =>
     productsArr.push({
       price_data: {
@@ -52,14 +55,14 @@ export const createCheckout = async (
 };
 
 export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Response) => {
+  const currentUser = await User.findOne({ _id: req.body.userId });
   const session = await stripeInstance.checkout.sessions.retrieve(
     req.query.session_id as string,
   );
   const totalPrice = session.amount_total;
 
-  const order = new Order({ totalPrice });
+  const order = new Order({ totalPrice, userId: req.body.userId });
   await order.save();
-  const currentUser = await User.findOne({ _id: req.body.userId });
   currentUser!.orders = [...currentUser!.orders, { order: order._id }];
   await order.save();
   await currentUser!.save();
