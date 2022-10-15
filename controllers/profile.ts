@@ -6,6 +6,7 @@ import { createError } from "../utils/createError";
 import { getUser } from "../utils/user/getUser";
 import PDFDocument from "pdfkit";
 import fs from "fs";
+import path from "path";
 
 export const getProfile = async (
   req: Request<{}, {}, IAuthUser>,
@@ -26,32 +27,47 @@ export const getProfile = async (
 };
 
 export const getOrderRaport = async (
-  req: Request<{}, {}, IAuthUser>,
+  req: Request<{orderId: string}, {}, IAuthUser>,
   res: Response,
   next: NextFunction,
 ) => {
-  const orderId = req.query.orderId;
+  const orderId = req.params.orderId;
   const order = await Order.findOne({ orderId: orderId });
-  if (!order) {
-    next(createError("Order does not exist"));
-    return;
-  }
-  const orderUser = await User.findOne({ userId: order.userId });
-  const requestUser = await User.findOne({ userId: req.body.userId });
-  if (!orderUser) {
-    next(createError("Order was not found for the specified user"));
-    return;
-  }
-  if (!requestUser || orderUser._id.toString() != requestUser._id.toString()) {
-    next(createError("You are not allowed to view this order"));
-    return;
-  }
+  // try {
+  //   const fileName = `cv.pdf`
+  //   const fileURL = path.join('data', fileName)
+  //   const stream = fs.createReadStream(fileURL);
+  //   
+  //   stream.pipe(res);
+  // } catch (e) {
+  //   console.error(e)
+  //   res.status(500).end();
+  // }
+  // if (!order) {
+  //   next(createError("Order does not exist"));
+  //   return;
+  // }
+  // const orderUser = await User.findOne({ userId: order.userId });
+  // const requestUser = await User.findOne({ userId: req.body.userId });
+  // if (!orderUser) {
+  //   next(createError("Order was not found for the specified user"));
+  //   return;
+  // }
+  // if (!requestUser || orderUser._id.toString() != requestUser._id.toString()) {
+  //   next(createError("You are not allowed to view this order"));
+  //   return;
+  // }
   
-  const pdfName = `order-raport-${order._id}.pdf`;
-  const pdfDoc = new PDFDocument();
-  pdfDoc.pipe(fs.createWriteStream(`./pdf/${pdfName}`))
-  pdfDoc.pipe(res)
-  pdfDoc.fontSize(12).text("This is a test PDF");
-  pdfDoc.end();
  
+  const pdfName = "cv123.pdf";
+  const pdfPath = path.join('data', pdfName)
+  // const pdfDoc = new PDFDocument();
+  // pdfDoc.pipe(fs.createWriteStream(pdfPath));
+  // pdfDoc.pipe(res)
+  // pdfDoc.text("Hello worldNEW!").fontSize(20)
+  // pdfDoc.end();
+
+  const fileStream = fs.createReadStream(pdfPath, {encoding: "base64"})
+  fileStream.pipe(res)
+  
 };
