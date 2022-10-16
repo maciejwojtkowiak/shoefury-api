@@ -74,7 +74,6 @@ export const successOrder = async (
     userId: req.body.userId,
     items: [...currentUser.cart.items],
   });
-  console.log("ORDER", order);
   await order.save();
   currentUser.orders = [...currentUser.orders, { order: order._id }];
   await order.save();

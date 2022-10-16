@@ -15,8 +15,6 @@ export const getProfile = async (
   next: NextFunction
 ): Promise<void> => {
   const currentUser = await getUser(req.body.userId);
-  console.log("USERID", req.body.userId);
-  console.log("CURRENT USER", currentUser);
   if (currentUser != null) {
     const userOrders = await currentUser.populate("orders.order", "totalPrice");
     res.status(200).json({
@@ -34,9 +32,7 @@ export const getOrderRaport = async (
   next: NextFunction
 ): Promise<void> => {
   const orderId = req.params.orderId;
-  const order = await Order.findOne({ orderId: "634c361e6f30118f1228307a" });
-  console.log("ORDERID", orderId);
-  console.log("ACUTAL ORDERID", order);
+  const order = await Order.findOne({ orderId });
   if (order === null) {
     next(createError("Order does not exist"));
     return;
@@ -56,7 +52,7 @@ export const getOrderRaport = async (
   }
 
   const pdfName = `cv123${orderId}.pdf`;
-  res.setHeader("Content-Type", "text/pdf");
+  res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename=${pdfName}`);
   const products = await order.populate("items.product");
   const pdfPath = path.join("data", pdfName);
@@ -64,12 +60,21 @@ export const getOrderRaport = async (
   const pdfDoc = new PDFDocument();
   const writeStream = pdfDoc.pipe(pdfStream);
   pdfDoc.fontSize(25).text(`Order ${orderId}`);
-  pdfDoc.fontSize(13).text(`User ${orderUser.name}`);
-  console.log("PRODUCTS", products);
+  pdfDoc.lineGap(50);
+  pdfDoc.fontSize(13).text(`${orderUser.name}`);
   products.items.forEach((p) => {
-    pdfDoc.fontSize(14).text((p.product as unknown as IProduct).title);
+    const product = p.product as unknown as IProduct;
+    pdfDoc
+      .fontSize(14)
+      .text(`${product.title} ${p.quantity}x ${+product.price * p.quantity}`, {
+        wordSpacing: 50,
+      });
   });
-
+  pdfDoc
+    .image("images/logo.png", 30, 15, { scale: 0.7 })
+    .font("Times-Italic")
+    .fontSize(25)
+    .text("Shoefury", 70, 25);
   pdfDoc.end();
   writeStream.on("finish", () => {
     const fileStream = fs.createReadStream(pdfPath, { encoding: "base64" });
