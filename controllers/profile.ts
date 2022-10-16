@@ -8,6 +8,8 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 
+
+
 export const getProfile = async (
   req: Request<{}, {}, IAuthUser>,
   res: Response,
@@ -33,41 +35,40 @@ export const getOrderRaport = async (
 ) => {
   const orderId = req.params.orderId;
   const order = await Order.findOne({ orderId: orderId });
-  // try {
-  //   const fileName = `cv.pdf`
-  //   const fileURL = path.join('data', fileName)
-  //   const stream = fs.createReadStream(fileURL);
-  //   
-  //   stream.pipe(res);
-  // } catch (e) {
-  //   console.error(e)
-  //   res.status(500).end();
-  // }
-  // if (!order) {
-  //   next(createError("Order does not exist"));
-  //   return;
-  // }
-  // const orderUser = await User.findOne({ userId: order.userId });
-  // const requestUser = await User.findOne({ userId: req.body.userId });
-  // if (!orderUser) {
-  //   next(createError("Order was not found for the specified user"));
-  //   return;
-  // }
-  // if (!requestUser || orderUser._id.toString() != requestUser._id.toString()) {
-  //   next(createError("You are not allowed to view this order"));
-  //   return;
-  // }
-  
+  if (!order) {
+    next(createError("Order does not exist"));
+    return;
+  }
+  const orderUser = await User.findOne({ userId: order.userId });
+  const requestUser = await User.findOne({ userId: req.body.userId });
+  if (!orderUser) {
+    next(createError("Order was not found for the specified user"));
+    return;
+  }
+  if (!requestUser || orderUser._id.toString() != requestUser._id.toString()) {
+    next(createError("You are not allowed to view this order"));
+    return;
+  }
  
-  const pdfName = "cv123.pdf";
+  const pdfName = `cv123${orderId}.pdf` ;
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition",`attachment; filename=${pdfName}`)
   const pdfPath = path.join('data', pdfName)
-  // const pdfDoc = new PDFDocument();
-  // pdfDoc.pipe(fs.createWriteStream(pdfPath));
-  // pdfDoc.pipe(res)
-  // pdfDoc.text("Hello worldNEW!").fontSize(20)
-  // pdfDoc.end();
-
-  const fileStream = fs.createReadStream(pdfPath, {encoding: "base64"})
-  fileStream.pipe(res)
-  
+  const pdfStream = fs.createWriteStream(pdfPath)
+  const pdfDoc = new PDFDocument();
+  const writeStream = pdfDoc.pipe(pdfStream);
+  pdfDoc.text(`Order ${orderId}`).fontSize(30)
+  pdfDoc.text(`User ${orderUser.name}`)
+  pdfDoc.end();
+  writeStream.on("finish", () => {
+    const fileStream = fs.createReadStream(pdfPath, {encoding: "base64"})
+    fileStream.on("data", (chunk: Buffer) => {
+      res.write(chunk)
+    })
+    fileStream.on("end", () => {
+      fs.unlink(pdfPath, () => {
+        res.end()
+      })
+    })
+  })
 };
