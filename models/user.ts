@@ -24,8 +24,8 @@ export interface IUser extends mongoose.Document {
 }
 
 interface IUserMethods {
-  setPassword(password: string): void;
-  decryptPasswordSuccess(password: string): void;
+  setPassword: (password: string) => void;
+  decryptPasswordSuccess: (password: string) => void;
 }
 
 const user = new Schema<IUser, {}, IUserMethods>({
@@ -47,7 +47,11 @@ const user = new Schema<IUser, {}, IUserMethods>({
     items: [
       {
         _id: false,
-        product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
         quantity: { type: Number, required: true },
       },
     ],
@@ -67,7 +71,7 @@ user.method(
   function setPassword(password) {
     this.password = bcrypt.hash(password, 16);
   },
-  { collection: "users" },
+  { collection: "users" }
 );
 
 const User = mongoose.model<IUser>("User", user);

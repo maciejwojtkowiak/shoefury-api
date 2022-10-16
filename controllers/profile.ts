@@ -14,9 +14,8 @@ export const getProfile = async (
   next: NextFunction
 ): Promise<void> => {
   const currentUser = await getUser(req.body.userId);
-  const userOrders = await currentUser!.populate("orders.order", "totalPrice");
-
   if (currentUser != null) {
+    const userOrders = await currentUser.populate("orders.order", "totalPrice");
     res.status(200).json({
       name: currentUser.name,
       profileImage: currentUser.profileImage,
@@ -54,6 +53,8 @@ export const getOrderRaport = async (
   const pdfName = `cv123${orderId}.pdf`;
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename=${pdfName}`);
+  const products = await order.populate("items");
+  console.log(products.items, "ITEMS");
   const pdfPath = path.join("data", pdfName);
   const pdfStream = fs.createWriteStream(pdfPath);
   const pdfDoc = new PDFDocument();

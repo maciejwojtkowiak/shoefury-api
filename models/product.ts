@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { IProduct } from '../types/Product';
+import mongoose from "mongoose";
+import { IProduct } from "../types/Product";
 const { Schema } = mongoose;
 
 const product = new Schema<IProduct>(
@@ -21,8 +21,8 @@ const product = new Schema<IProduct>(
       required: true,
     },
   },
-  { collection: 'products', timestamps: true }
+  { collection: "products", timestamps: true }
 );
 
-const Product = mongoose.model('Product', product);
+const Product = mongoose.model("Product", product);
 export default Product;

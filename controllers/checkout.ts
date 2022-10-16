@@ -25,8 +25,8 @@ interface ICheckoutRequestBody {
 export const createCheckout = async (
   req: Request<{}, {}, ICheckoutRequestBody>,
   res: Response,
-  next: NextFunction,
-) => {
+  next: NextFunction
+): Promise<void> => {
   const productsArr: any = [];
   const products = req.body.items;
 
@@ -41,7 +41,7 @@ export const createCheckout = async (
         },
       },
       quantity: product.quantity,
-    }),
+    })
   );
 
   const session = await stripeInstance.checkout.sessions.create({
@@ -53,17 +53,31 @@ export const createCheckout = async (
   res.status(200).json({ url: session.url });
 };
 
-export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Response) => {
+export const successOrder = async (
+  req: Request<{}, {}, IAuthUser>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const currentUser = await User.findOne({ _id: req.body.userId });
+  if (currentUser === null) {
+    next(createError("No user found", 400));
+    return;
+  }
   const session = await stripeInstance.checkout.sessions.retrieve(
-    req.query.session_id as string,
+    req.query.session_id as string
   );
   const totalPrice = session.amount_total;
+  // const items = [...currentUser.cart.items];
 
-  const order = new Order({ totalPrice, userId: req.body.userId, items: currentUser!.cart.items });
+  const order = new Order({
+    totalPrice,
+    userId: req.body.userId,
+    items: [...currentUser.cart.items],
+  });
+  console.log("ORDER", order);
   await order.save();
-  currentUser!.orders = [...currentUser!.orders, { order: order._id }];
+  currentUser.orders = [...currentUser.orders, { order: order._id }];
   await order.save();
-  await currentUser!.save();
-  res.status(200).json({ totalPrice: totalPrice });
+  await currentUser.save();
+  res.status(200).json({ totalPrice });
 };
