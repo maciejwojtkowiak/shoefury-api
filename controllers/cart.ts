@@ -1,16 +1,32 @@
-import { NextFunction, Request, Response } from 'express';
-import User from '../models/user';
-import Product from '../models/product';
-import { IProduct } from '../types/Product';
+import { NextFunction, Request, Response } from "express";
+import Product from "../models/product";
+import { IProduct } from "../types/Product";
+import { IAuthUser } from "../types/User";
+import { createError } from "../utils/createError";
+import { getUser } from "../utils/user/getUser";
 
-export const addToCart = async (req: Request, res: Response, next: NextFunction) => {
-  const currentUser = await User.findOne({ _id: req.body.userId });
+interface IAddToCart extends IAuthUser {
+  productId: string;
+}
+
+export const addToCart = async (
+  req: Request<{}, {}, IAddToCart>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const currentUser = await getUser(req.body.userId);
   const addedProduct = (await Product.findOne({
-    title: req.body.productTitle,
+    _id: req.body.productId,
   })) as IProduct;
+  console.log("ADD")
+
+  if (!addedProduct) {
+    next(createError("Product does not exist in database"))
+    return
+  };
 
   const cartItem = currentUser!.cart.items.find(
-    (item) => item.product.toString() === addedProduct._id.toString()
+    (item) => item.product.toString() === addedProduct._id.toString(),
   );
 
   if (cartItem) {
@@ -18,23 +34,38 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
   }
   if (!cartItem) {
     const cartItems = currentUser!.cart.items;
-    const updatedCart = {
-      items: [...cartItems, { product: addedProduct._id, quantity: 1 }],
-    };
-    currentUser!.cart = updatedCart;
+    const updatedCart = [...cartItems, { product: addedProduct._id, quantity: 1 }];
+    currentUser!.cart.items = updatedCart;
   }
 
   await currentUser!.save();
-  res.status(201).json({ message: 'success' });
+  console.log("ADD")
+  res.status(201).json({ message: "success" });
 };
 
 export const getCart = async (req: Request, res: Response) => {
-  const currentUser = await User.findOne({ _id: req.body.userId });
-  const products = await currentUser!.populate('cart.items.product');
-  res.status(200).json({ products: products });
+  const currentUser = await getUser(req.body.userId);
+  const cart = await currentUser!.populate("cart.items.product");
+  res.status(200).json({ cart: cart.cart });
 };
 
 export const deleteItemFromCart = async (req: Request, res: Response) => {
+  const currentUser = await getUser(req.body.userId);
+  const productIdToDelete = req.body.productId;
+  const cartItem = currentUser!.cart.items.find(
+    (product) => product.product.toString() === productIdToDelete,
+  );
+  if (cartItem!.quantity === 1) {
+    currentUser!.cart.items = currentUser!.cart.items.filter(
+      (product) => product.product.toString() !== productIdToDelete,
+    );
+  }
 
-  res.status(200).json({products: "hej"})
-}
+  if (cartItem!.quantity < 1) {
+    cartItem!.quantity -= 1;
+  }
+  await currentUser!.save();
+  const cart = currentUser!.cart;
+
+  res.status(200).json({ cart });
+};

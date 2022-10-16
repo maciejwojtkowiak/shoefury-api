@@ -7,6 +7,7 @@ import productRoutes from './routes/product';
 import authRoutes from './routes/auth';
 import cartRoutes from './routes/cart';
 import checkoutRoutes from './routes/checkout';
+import profileRoutes from './routes/profile';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
@@ -22,7 +23,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, responseType, responseEncoding');
 
   next();
 });
@@ -42,10 +43,11 @@ app.use('/product', productRoutes);
 app.use('/auth', authRoutes);
 app.use('/cart', cartRoutes);
 app.use('/checkout', checkoutRoutes);
+app.use('/profile', profileRoutes)
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction) => {
   const status = error.status || 500;
   const message = error.message || 'Something went wrong';
-  res.status(status).json({ message: message });
+  res.status(status).json({message});
 });
 
 const startServer = async () => {

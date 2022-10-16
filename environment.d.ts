@@ -25,10 +25,13 @@ declare global {
   interface PathParams extends Multer {}
 }
 
-declare namespace Express {
-  interface Request {
-    userId: string;
+declare global {
+  namespace Express {
+    export interface Request {
+      body: {
+        userId?: string;
+      }
+    }
   }
 }
-
 export {};

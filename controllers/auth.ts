@@ -5,6 +5,7 @@ import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import { CustomError } from "../types/Error";
 
+
 interface RegisterData {
   name: string;
   email: string;
@@ -18,6 +19,8 @@ export const register = async (req: Request<{}, {}, RegisterData>, res: Response
   const user = new User();
   user.name = name;
   user.email = email;
+  user.cart.items = []
+  user.orders = []
   const salt = await bcrypt.genSalt(10)
   user.password = await bcrypt.hash(password, salt);
   await user.save();
@@ -57,14 +60,16 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const isAuth = async (req: Request, res: Response) => {
+export const isAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.get("Authorization")?.split(" ")[1];
   if (token) {
     try {
       const decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`);
-      if (decodedToken) res.status(200).json({ isAuth: true });
-    } catch (e) {
-      res.status(401).json({ isAuth: false });
+      if (decodedToken) res.status(200).json({isAuth: true})
+    } catch (error) {
+      const err = new Error("Not auth") as CustomError;
+      err.status = 401;
+      next(err)
     }
-  } else res.status(401).json({ isAuth: false });
+  } else next(new Error("Not auth") as CustomError);
 };

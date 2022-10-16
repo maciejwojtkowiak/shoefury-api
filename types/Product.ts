@@ -1,8 +1,9 @@
-import { ObjectId } from 'mongoose';
+import { Types } from "mongoose";
 
 export interface IProduct {
-  _id: ObjectId;
+  _id: Types.ObjectId;
+  description: string;
   title: string;
   price: string;
-  imageUrl: string;
+  imageData: string;
 }
