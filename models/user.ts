@@ -2,7 +2,7 @@ import mongoose, { Types, Schema } from "mongoose";
 
 import bcrypt from "bcrypt";
 
-interface Item {
+export interface Item {
   product: Types.ObjectId;
   quantity: number;
 }

@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction, response } from "express";
+import { Response, Request, NextFunction } from "express";
 import Order from "../models/order";
 import User from "../models/user";
 import { IAuthUser } from "../types/User";
@@ -8,67 +8,69 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 
-
-
 export const getProfile = async (
   req: Request<{}, {}, IAuthUser>,
   res: Response,
-  next: NextFunction,
-) => {
+  next: NextFunction
+): Promise<void> => {
   const currentUser = await getUser(req.body.userId);
   const userOrders = await currentUser!.populate("orders.order", "totalPrice");
 
-  if (currentUser) {
+  if (currentUser != null) {
     res.status(200).json({
       name: currentUser.name,
       profileImage: currentUser.profileImage,
       orders: userOrders.orders,
     });
   }
-  if (!currentUser) next(createError("No user found", 500));
+  if (currentUser == null) next(createError("No user found", 500));
 };
 
 export const getOrderRaport = async (
-  req: Request<{orderId: string}, {}, IAuthUser>,
+  req: Request<{ orderId: string }, {}, IAuthUser>,
   res: Response,
-  next: NextFunction,
-) => {
+  next: NextFunction
+): Promise<void> => {
   const orderId = req.params.orderId;
-  const order = await Order.findOne({ orderId: orderId });
-  if (!order) {
+  const order = await Order.findOne({ orderId });
+  if (order === null) {
     next(createError("Order does not exist"));
     return;
   }
   const orderUser = await User.findOne({ userId: order.userId });
   const requestUser = await User.findOne({ userId: req.body.userId });
-  if (!orderUser) {
+  if (orderUser == null) {
     next(createError("Order was not found for the specified user"));
     return;
   }
-  if (!requestUser || orderUser._id.toString() != requestUser._id.toString()) {
+  if (
+    requestUser == null ||
+    orderUser._id.toString() !== requestUser._id.toString()
+  ) {
     next(createError("You are not allowed to view this order"));
     return;
   }
- 
-  const pdfName = `cv123${orderId}.pdf` ;
+
+  const pdfName = `cv123${orderId}.pdf`;
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition",`attachment; filename=${pdfName}`)
-  const pdfPath = path.join('data', pdfName)
-  const pdfStream = fs.createWriteStream(pdfPath)
+  res.setHeader("Content-Disposition", `attachment; filename=${pdfName}`);
+  const pdfPath = path.join("data", pdfName);
+  const pdfStream = fs.createWriteStream(pdfPath);
   const pdfDoc = new PDFDocument();
   const writeStream = pdfDoc.pipe(pdfStream);
-  pdfDoc.text(`Order ${orderId}`).fontSize(30)
-  pdfDoc.text(`User ${orderUser.name}`)
+  pdfDoc.fontSize(25).text(`Order ${orderId}`);
+  pdfDoc.fontSize(13).text(`User ${orderUser.name}`);
+
   pdfDoc.end();
   writeStream.on("finish", () => {
-    const fileStream = fs.createReadStream(pdfPath, {encoding: "base64"})
+    const fileStream = fs.createReadStream(pdfPath, { encoding: "base64" });
     fileStream.on("data", (chunk: Buffer) => {
-      res.write(chunk)
-    })
+      res.write(chunk);
+    });
     fileStream.on("end", () => {
       fs.unlink(pdfPath, () => {
-        res.end()
-      })
-    })
-  })
+        res.end();
+      });
+    });
+  });
 };

@@ -50,7 +50,6 @@ export const createCheckout = async (
     success_url: `${frontendDomain}/${FrontendPaths.successOrder}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${frontendDomain}`,
   });
-
   res.status(200).json({ url: session.url });
 };
 
@@ -61,7 +60,7 @@ export const successOrder = async (req: Request<{}, {}, IAuthUser>, res: Respons
   );
   const totalPrice = session.amount_total;
 
-  const order = new Order({ totalPrice, userId: req.body.userId });
+  const order = new Order({ totalPrice, userId: req.body.userId, items: currentUser!.cart.items });
   await order.save();
   currentUser!.orders = [...currentUser!.orders, { order: order._id }];
   await order.save();
