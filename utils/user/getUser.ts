@@ -1,11 +1,9 @@
-import User, { IUser } from "../../models/user"
-import { createError } from "../createError";
+import User, { IUser } from "../../models/user";
 
 export const getUser = async (id: string): Promise<IUser | null> => {
-    const user = await User.findOne({_id: id});
-    if (user) {
-        return user;
-    }
-    return null
- 
-}
+  const user = await User.findOne({ _id: id });
+  if (user != null) {
+    return user;
+  }
+  return null;
+};

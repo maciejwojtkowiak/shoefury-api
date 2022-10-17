@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
-import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import { CustomError } from "../types/Error";
-
 
 interface RegisterData {
   name: string;
@@ -12,31 +10,38 @@ interface RegisterData {
   password: string;
 }
 
-export const register = async (req: Request<{}, {}, RegisterData>, res: Response) => {
+export const register = async (
+  req: Request<{}, {}, RegisterData>,
+  res: Response
+): Promise<void> => {
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
   const user = new User();
   user.name = name;
   user.email = email;
-  user.cart.items = []
-  user.orders = []
-  const salt = await bcrypt.genSalt(10)
+  user.cart.items = [];
+  user.orders = [];
+  const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(password, salt);
   await user.save();
   const token = jwt.sign({ userId: user._id }, `${process.env.SECRET_KEY}`, {
     algorithm: "HS256",
     expiresIn: "1h",
   });
-  res.status(200).json({ message: "LOGGED IN SUCCESSFULLY", token: token });
+  res.status(200).json({ message: "LOGGED IN SUCCESSFULLY", token });
 };
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const email = req.body.email;
   const password = req.body.password;
   try {
-    const userWithGivenEmail = await User.findOne({ email: email });
-    if (userWithGivenEmail) {
+    const userWithGivenEmail = await User.findOne({ email });
+    if (userWithGivenEmail != null) {
       const isPasswordCorrect = password === userWithGivenEmail.password;
       if (isPasswordCorrect) {
         const token = jwt.sign(
@@ -47,7 +52,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             expiresIn: "1h",
           }
         );
-        res.status(200).json({ message: "LOGGED IN SUCCESSFULLY", token: token });
+        res.status(200).json({ message: "LOGGED IN SUCCESSFULLY", token });
       }
       if (!isPasswordCorrect) {
         const error = new Error("Wrong password") as CustomError;
@@ -60,16 +65,21 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const isAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const isAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const token = req.get("Authorization")?.split(" ")[1];
-  if (token) {
+  if (token !== undefined) {
     try {
       const decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`);
-      if (decodedToken) res.status(200).json({isAuth: true})
+      console.log("DECODED", decodedToken);
+      if (!decodedToken) res.status(200).json({ isAuth: true });
     } catch (error) {
       const err = new Error("Not auth") as CustomError;
       err.status = 401;
-      next(err)
+      next(err);
     }
-  } else next(new Error("Not auth") as CustomError);
+  } else next(new Error("Not authenticated") as CustomError);
 };
