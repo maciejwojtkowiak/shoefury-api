@@ -7,23 +7,29 @@ const authError = createError("Not authenticated", 401);
 
 interface IJwtPayload extends IAuthUser, jwt.JwtPayload {}
 
-export const isAuth = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.get("Authorization")!.split(" ")[1];
+export const isAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const token = req.get("Authorization")?.split(" ")[1] ?? "";
   let decodedToken;
 
   try {
-    decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`) as IJwtPayload;
+    decodedToken = jwt.verify(
+      token,
+      `${process.env.SECRET_KEY}`
+    ) as IJwtPayload;
   } catch (error) {
     next(authError);
   }
-  if (!decodedToken || !decodedToken.userId) {
+  if (decodedToken === undefined) {
     next(authError);
   }
 
-  if (decodedToken) {
+  if (decodedToken != null) {
     req.body.userId = decodedToken.userId;
-  } 
+  }
 
   next();
-  
 };

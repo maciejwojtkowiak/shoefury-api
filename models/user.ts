@@ -20,6 +20,7 @@ export interface IUser extends mongoose.Document {
   password: string;
   orders: IOrderItem[];
   cart: ICart;
+  reviewedProducts: Types.ObjectId[];
   profileImage: string;
 }
 
@@ -56,7 +57,9 @@ const user = new Schema<IUser, {}, IUserMethods>({
       },
     ],
   },
-
+  reviewedProducts: [
+    { product: { type: Schema.Types.ObjectId, ref: "Product" } },
+  ],
   password: {
     type: String,
   },

@@ -67,3 +67,8 @@ export const getProduct = async (
   const foundProduct = await Product.find({ title: productTitle });
   res.status(200).json({ message: "Product found", foundProduct });
 };
+
+export const addReview = async (
+  req: Request,
+  res: Response
+): Promise<void> => {};

@@ -17,6 +17,7 @@ export const register = async (
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
+
   const user = new User();
   user.name = name;
   user.email = email;
@@ -75,7 +76,7 @@ export const isAuth = async (
     try {
       const decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`);
       console.log("DECODED", decodedToken);
-      if (!decodedToken) res.status(200).json({ isAuth: true });
+      res.status(200).json({ isAuth: true });
     } catch (error) {
       const err = new Error("Not auth") as CustomError;
       err.status = 401;
