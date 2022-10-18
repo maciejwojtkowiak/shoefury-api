@@ -9,6 +9,10 @@ import fs from "fs";
 import path from "path";
 import { IProduct } from "../types/Product";
 
+interface IOrderIdParam {
+  orderId: string;
+}
+
 export const getProfile = async (
   req: Request<{}, {}, IAuthUser>,
   res: Response,
@@ -27,7 +31,7 @@ export const getProfile = async (
 };
 
 export const getOrderRaport = async (
-  req: Request<{ orderId: string }, {}, IAuthUser>,
+  req: Request<IOrderIdParam, {}, IAuthUser>,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

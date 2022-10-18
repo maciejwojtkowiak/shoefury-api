@@ -20,6 +20,14 @@ const product = new Schema<IProduct>(
       type: String,
       required: true,
     },
+    rating: [
+      {
+        review: {
+          type: String,
+          required: false,
+        },
+      },
+    ],
   },
   { collection: "products", timestamps: true }
 );

@@ -1,5 +1,5 @@
-const fs = require('fs')
+import fs from "fs";
 
-export const encodeBase64 = (path: string) => {
-    return fs.readFileSync(path, "base64")
-}
+export const encodeBase64 = (path: string): string => {
+  return fs.readFileSync(path, "base64");
+};

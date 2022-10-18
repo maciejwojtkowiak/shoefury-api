@@ -6,4 +6,5 @@ export interface IProduct {
   title: string;
   price: string;
   imageData: string;
+  rating: string[];
 }
