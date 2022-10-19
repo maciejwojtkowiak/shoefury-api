@@ -1,10 +1,15 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
-export interface IProduct {
+interface IRating {
+  reviewers: Types.ObjectId[];
+  rates: number[];
+}
+
+export interface IProduct extends mongoose.Document {
   _id: Types.ObjectId;
   description: string;
   title: string;
   price: string;
   imageData: string;
-  rating: string[];
+  rating: IRating;
 }

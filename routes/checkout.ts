@@ -5,6 +5,10 @@ import { isAuth } from "../middleware/isAuth";
 const router = express.Router();
 
 router.post("/create-checkout", createCheckout as RequestHandler);
-router.get("/order-success", isAuth, successOrder as RequestHandler);
+router.get(
+  "/order-success",
+  isAuth as RequestHandler,
+  successOrder as RequestHandler
+);
 
 export default router;

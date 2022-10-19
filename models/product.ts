@@ -20,14 +20,20 @@ const product = new Schema<IProduct>(
       type: String,
       required: true,
     },
-    rating: [
-      {
-        review: {
+    rating: {
+      reviewers: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      rates: [
+        {
           type: String,
           required: false,
         },
-      },
-    ],
+      ],
+    },
   },
   { collection: "products", timestamps: true }
 );

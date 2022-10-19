@@ -14,13 +14,18 @@ interface ICart {
 interface IOrderItem {
   order: Types.ObjectId;
 }
+
+interface IReview {
+  product: Types.ObjectId;
+  rate: number;
+}
 export interface IUser extends mongoose.Document {
   name: string;
   email: string;
   password: string;
   orders: IOrderItem[];
   cart: ICart;
-  reviewedProducts: Types.ObjectId[];
+  reviewedProducts: IReview[];
   profileImage: string;
 }
 
@@ -58,7 +63,10 @@ const user = new Schema<IUser, {}, IUserMethods>({
     ],
   },
   reviewedProducts: [
-    { product: { type: Schema.Types.ObjectId, ref: "Product" } },
+    {
+      product: { type: Schema.Types.ObjectId, ref: "Product" },
+      rate: { type: Number, required: false },
+    },
   ],
   password: {
     type: String,

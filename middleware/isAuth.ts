@@ -13,6 +13,7 @@ export const isAuth = async (
   next: NextFunction
 ): Promise<void> => {
   const token = req.get("Authorization")?.split(" ")[1] ?? "";
+  console.log("TOKEN", token);
   let decodedToken;
 
   try {
@@ -23,13 +24,13 @@ export const isAuth = async (
   } catch (error) {
     next(authError);
   }
+  console.log("DECODED");
   if (decodedToken === undefined) {
     next(authError);
+    return;
   }
-
-  if (decodedToken != null) {
-    req.body.userId = decodedToken.userId;
-  }
+  if (decodedToken === null || decodedToken === undefined) return;
+  req.body.userId = decodedToken.userId;
 
   next();
 };

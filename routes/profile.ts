@@ -4,10 +4,14 @@ import { isAuth } from "../middleware/isAuth";
 
 const router = express.Router();
 
-router.get("/get-profile", isAuth, getProfile as RequestHandler);
+router.get(
+  "/get-profile",
+  isAuth as RequestHandler,
+  getProfile as RequestHandler
+);
 router.get(
   "/get-order-raport/:orderId",
-  isAuth,
+  isAuth as RequestHandler,
   getOrderRaport as unknown as RequestHandler
 );
 

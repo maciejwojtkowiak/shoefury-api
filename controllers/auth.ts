@@ -23,6 +23,7 @@ export const register = async (
   user.email = email;
   user.cart.items = [];
   user.orders = [];
+  user.reviewedProducts = [];
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(password, salt);
   await user.save();
