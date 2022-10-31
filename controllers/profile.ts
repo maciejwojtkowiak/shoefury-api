@@ -1,13 +1,16 @@
 import { Response, Request, NextFunction } from "express";
 import Order from "../models/order";
 import User from "../models/user";
-import { IAuthUser } from "../types/User";
+
 import { createError } from "../utils/createError";
 import { getUser } from "../utils/user/getUser";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import { IProduct } from "../types/Product";
+
+import { IAuthUser } from "types/Auth/Auth";
+import { IProduct } from "types/Product/Product";
+import { IProfileEdit } from "types/Profile/Profile";
 
 interface IOrderIdParam {
   orderId: string;
@@ -38,20 +41,20 @@ export const getOrderRaport = async (
   const orderId = req.params.orderId;
   const order = await Order.findOne({ orderId });
   if (order === null) {
-    next(createError("Order does not exist"));
+    next(createError("Order does not exist", 400));
     return;
   }
   const orderUser = await User.findOne({ userId: order.userId });
   const requestUser = await User.findOne({ userId: req.body.userId });
   if (orderUser == null) {
-    next(createError("Order was not found for the specified user"));
+    next(createError("Order was not found for the specified user", 400));
     return;
   }
   if (
     requestUser == null ||
     orderUser._id.toString() !== requestUser._id.toString()
   ) {
-    next(createError("You are not allowed to view this order"));
+    next(createError("You are not allowed to view this order", 400));
     return;
   }
 
@@ -91,4 +94,21 @@ export const getOrderRaport = async (
       });
     });
   });
+};
+
+export const editProfile = async (
+  req: Request<{}, {}, IProfileEdit>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const currentUser = await getUser(req.body.userId);
+  if (currentUser === null) {
+    next(createError("No user in request", 400));
+    return;
+  }
+  console.log("HEY", currentUser);
+  const name = req.body.name;
+  currentUser.name = name;
+  await currentUser?.save();
+  res.status(200).json({ message: "success" });
 };

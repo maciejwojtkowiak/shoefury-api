@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
+import { IAuthUser } from "types/Auth/Auth";
 import Product from "../models/product";
-import { IProduct } from "../types/Product";
-import { IAuthUser } from "../types/User";
+import { IProduct } from "../types/Product/Product";
+
 import { createError } from "../utils/createError";
 import { getUser } from "../utils/user/getUser";
 
@@ -42,7 +43,6 @@ export const addToCart = async (
   }
 
   await currentUser.save();
-  console.log("ADD");
   res.status(201).json({ message: "success" });
 };
 

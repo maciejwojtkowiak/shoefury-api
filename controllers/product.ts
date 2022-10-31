@@ -2,16 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import Product from "../models/product";
 import { encodeBase64 } from "../utils/encodeBase64";
 import { createError } from "../utils/createError";
-import { IAuthUser } from "../types/User";
 import { getUser } from "../utils/user/getUser";
 import { findProduct } from "../utils/product/getProduct";
-
-interface IProduct {
-  description: string;
-  title: string;
-  price: string;
-  imageData: string;
-}
+import { IProduct } from "../types/Product/Product";
+import { IAuthUser } from "../types/Auth/Auth";
 
 interface IAddReview extends IAuthUser {
   rate: number;
@@ -68,12 +62,13 @@ export const getProducts = async (
 };
 
 export const getProduct = async (
-  req: Request<{}, {}, { title: string }>,
+  req: Request<{ productId: string }, {}, {}>,
   res: Response
 ): Promise<void> => {
-  const productTitle = req.body.title;
-  const foundProduct = await Product.find({ title: productTitle });
-  res.status(200).json({ message: "Product found", foundProduct });
+  const productId = req.params.productId;
+  const foundProduct = await Product.find({ _id: productId });
+  console.log(foundProduct, "FOUND");
+  res.status(200).json({ message: "Product found", product: foundProduct });
 };
 
 export const addReview = async (
@@ -82,8 +77,8 @@ export const addReview = async (
   next: NextFunction
 ): Promise<void> => {
   const review = req.body.rate;
-  console.log(req.body, "BODY");
   const productId = req.body.productId;
+  console.log("PRODUCT ID", productId);
   const REVIEW_MIN = 1;
   const REVIEW_MAX = 5;
   if (review < REVIEW_MIN || review > REVIEW_MAX) {
@@ -108,13 +103,13 @@ export const addReview = async (
     ...currentUser.reviewedProducts,
     { product: reviewedProduct._id, rate: review },
   ];
+  await currentUser.save();
+
   reviewedProduct.rating = {
     reviewers: [...reviewedProduct.rating.reviewers, currentUser._id],
     rates: [...reviewedProduct.rating.rates, review],
   };
-  await currentUser.save();
   await reviewedProduct.save();
 
-  console.log("REVIEWED PRODUCT", reviewedProduct);
-  console.log("USER UPDATE", currentUser);
+  res.status(201).json({ message: "Successfully reviewed" });
 };

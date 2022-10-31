@@ -1,12 +1,5 @@
-import mongoose, { Schema, Types } from "mongoose";
-import { Item } from "./user";
-
-export interface IOrder {
-  _id: Types.ObjectId;
-  userId: Types.ObjectId;
-  totalPrice: number;
-  items: Item[];
-}
+import mongoose, { Schema } from "mongoose";
+import { IOrder } from "../types/Order/Order";
 
 const order = new Schema<IOrder>(
   {

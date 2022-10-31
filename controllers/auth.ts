@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { CustomError } from "../types/Error";
+import { CustomError } from "../types/Error/Error";
 
 interface RegisterData {
   name: string;
@@ -76,7 +76,7 @@ export const isAuth = async (
   if (token !== undefined) {
     try {
       const decodedToken = jwt.verify(token, `${process.env.SECRET_KEY}`);
-      console.log("DECODED", decodedToken);
+      if (decodedToken === null) return;
       res.status(200).json({ isAuth: true });
     } catch (error) {
       const err = new Error("Not auth") as CustomError;

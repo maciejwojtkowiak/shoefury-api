@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { IAuthUser } from "../types/User";
+import { IAuthUser } from "types/Auth/Auth";
+
 import { createError } from "../utils/createError";
 
 const authError = createError("Not authenticated", 401);
@@ -13,7 +14,6 @@ export const isAuth = async (
   next: NextFunction
 ): Promise<void> => {
   const token = req.get("Authorization")?.split(" ")[1] ?? "";
-  console.log("TOKEN", token);
   let decodedToken;
 
   try {
@@ -24,7 +24,7 @@ export const isAuth = async (
   } catch (error) {
     next(authError);
   }
-  console.log("DECODED");
+
   if (decodedToken === undefined) {
     next(authError);
     return;
