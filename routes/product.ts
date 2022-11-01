@@ -1,11 +1,18 @@
 import express, { RequestHandler } from "express";
 
-import { addProduct, addReview, getProducts } from "../controllers/product";
+import {
+  addProduct,
+  addReview,
+  getProduct,
+  getProducts,
+} from "../controllers/product";
 import { isAuth } from "../middleware/isAuth";
 
 const router = express.Router();
 
 router.get("/get-products", getProducts as RequestHandler);
+
+router.get("/get-product/:id", getProduct as unknown as RequestHandler);
 
 router.post(
   "/add-product",

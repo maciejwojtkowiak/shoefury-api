@@ -62,13 +62,14 @@ export const getProducts = async (
 };
 
 export const getProduct = async (
-  req: Request<{ productId: string }, {}, {}>,
+  req: Request<{ id: string }, {}, {}>,
   res: Response
 ): Promise<void> => {
-  const productId = req.params.productId;
-  const foundProduct = await Product.find({ _id: productId });
-  console.log(foundProduct, "FOUND");
-  res.status(200).json({ message: "Product found", product: foundProduct });
+  const productId = req.params.id;
+  const foundProduct = await Product.findOne({ _id: productId });
+  res
+    .status(200)
+    .json({ message: "Product found", error: false, product: foundProduct });
 };
 
 export const addReview = async (
@@ -78,7 +79,6 @@ export const addReview = async (
 ): Promise<void> => {
   const review = req.body.rate;
   const productId = req.body.productId;
-  console.log("PRODUCT ID", productId);
   const REVIEW_MIN = 1;
   const REVIEW_MAX = 5;
   if (review < REVIEW_MIN || review > REVIEW_MAX) {
