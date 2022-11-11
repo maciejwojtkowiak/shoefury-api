@@ -21,7 +21,5 @@ stages:
       inputs:
         command: build
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-  - job: Push
-    displayName: Push to docker hub
-    steps:
+
       
