@@ -1,11 +1,11 @@
 trigger:
-- main
+- dev
 
 resources:
 - repo: self
 
 variables:
-  tag: '$(Build.BuildId)'
+  tag: 'shoefury'
 
 stages:
 - stage: Build
@@ -21,5 +21,7 @@ stages:
       inputs:
         command: build
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        tags: |
-          $(tag)
+  - job: Push
+    displayName: Push to docker hub
+    steps:
+      
