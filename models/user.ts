@@ -1,32 +1,7 @@
-import mongoose, { Types, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 import bcrypt from "bcrypt";
-
-export interface Item {
-  product: Types.ObjectId;
-  quantity: number;
-}
-
-interface ICart {
-  items: Item[];
-}
-
-interface IOrderItem {
-  order: Types.ObjectId;
-}
-export interface IUser extends mongoose.Document {
-  name: string;
-  email: string;
-  password: string;
-  orders: IOrderItem[];
-  cart: ICart;
-  profileImage: string;
-}
-
-interface IUserMethods {
-  setPassword: (password: string) => void;
-  decryptPasswordSuccess: (password: string) => void;
-}
+import { IUser, IUserMethods } from "../types/User/User";
 
 const user = new Schema<IUser, {}, IUserMethods>({
   name: {
@@ -56,7 +31,12 @@ const user = new Schema<IUser, {}, IUserMethods>({
       },
     ],
   },
-
+  reviewedProducts: [
+    {
+      product: { type: Schema.Types.ObjectId, ref: "Product" },
+      rate: { type: Number, required: false },
+    },
+  ],
   password: {
     type: String,
   },

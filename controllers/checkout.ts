@@ -1,12 +1,12 @@
 import { Response, Request, NextFunction } from "express";
+import { IAuthUser } from "types/Auth/Auth";
 
 import { frontendDomain } from "../config/config";
 import { FrontendPaths } from "../config/FrontendPaths";
 import Order from "../models/order";
 import User from "../models/user";
 
-import { IProduct } from "../types/Product";
-import { IAuthUser } from "../types/User";
+import { IProduct } from "../types/Product/Product";
 import { createError } from "../utils/createError";
 import { stripeInstance } from "../utils/stripe";
 interface ICartItem {
@@ -74,7 +74,6 @@ export const successOrder = async (
     userId: req.body.userId,
     items: [...currentUser.cart.items],
   });
-  console.log("ORDER", order);
   await order.save();
   currentUser.orders = [...currentUser.orders, { order: order._id }];
   await order.save();

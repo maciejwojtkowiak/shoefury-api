@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import Product from "../models/product";
 import { encodeBase64 } from "../utils/encodeBase64";
 import { createError } from "../utils/createError";
+import { getUser } from "../utils/user/getUser";
+import { findProduct } from "../utils/product/getProduct";
+import { IProduct } from "../types/Product/Product";
+import { IAuthUser } from "../types/Auth/Auth";
 
-interface IProduct {
-  description: string;
-  title: string;
-  price: string;
-  imageData: string;
+interface IAddReview extends IAuthUser {
+  rate: number;
+  productId: string;
 }
 
 export const addProduct = async (
@@ -60,10 +62,54 @@ export const getProducts = async (
 };
 
 export const getProduct = async (
-  req: Request<{}, {}, { title: string }>,
+  req: Request<{ id: string }, {}, {}>,
   res: Response
 ): Promise<void> => {
-  const productTitle = req.body.title;
-  const foundProduct = await Product.find({ title: productTitle });
-  res.status(200).json({ message: "Product found", foundProduct });
+  const productId = req.params.id;
+  const foundProduct = await Product.findOne({ _id: productId });
+  res
+    .status(200)
+    .json({ message: "Product found", error: false, product: foundProduct });
+};
+
+export const addReview = async (
+  req: Request<{}, {}, IAddReview>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const review = req.body.rate;
+  const productId = req.body.productId;
+  const REVIEW_MIN = 1;
+  const REVIEW_MAX = 5;
+  if (review < REVIEW_MIN || review > REVIEW_MAX) {
+    next(
+      createError(
+        `Review range must be between ${REVIEW_MIN} and ${REVIEW_MAX}`,
+        400
+      )
+    );
+  }
+  const currentUser = await getUser(req.body.userId);
+  if (currentUser === null) {
+    createError("User does not exist", 400);
+    return;
+  }
+  const reviewedProduct = await findProduct(productId);
+  if (reviewedProduct === null) {
+    createError("Product does not exist", 400);
+    return;
+  }
+  currentUser.reviewedProducts = [
+    ...currentUser.reviewedProducts,
+    { product: reviewedProduct._id, rate: review },
+  ];
+  await currentUser.save();
+
+  reviewedProduct.rating = {
+    reviewers: [...reviewedProduct.rating.reviewers, currentUser._id],
+    rates: [...reviewedProduct.rating.rates, review],
+  };
+  await reviewedProduct.save();
+
+  res.status(201).json({ message: "Successfully reviewed" });
 };

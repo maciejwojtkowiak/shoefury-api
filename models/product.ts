@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IProduct } from "../types/Product";
+import { IProduct } from "../types/Product/Product";
 const { Schema } = mongoose;
 
 const product = new Schema<IProduct>(
@@ -19,6 +19,20 @@ const product = new Schema<IProduct>(
     imageData: {
       type: String,
       required: true,
+    },
+    rating: {
+      reviewers: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      rates: [
+        {
+          type: String,
+          required: false,
+        },
+      ],
     },
   },
   { collection: "products", timestamps: true }
