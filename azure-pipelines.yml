@@ -5,7 +5,7 @@ resources:
 - repo: self
 
 variables:
-  tag: 'shoefury'
+  tag: '$(Build.BuildId)'
 
 stages:
 - stage: Build
@@ -19,7 +19,22 @@ stages:
     - task: Docker@2
       displayName: Build an image
       inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        tags: 'latest'
+  - job: Push
+    displayName: Push to repository
+    pool:
+        name: selfhost
+    steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'docker-hub'
+          command: 'login'
+      - task: Docker@2
+        inputs:
+          repository: 'maciejwojtkowiak/shoefury-backend'
+          command: 'push'
+          tags: 'latest'
 
       
