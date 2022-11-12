@@ -59,13 +59,13 @@ app.use("/checkout", checkoutRoutes);
 app.use("/profile", profileRoutes);
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
-    const status = error.status || 500;
-    const message = error.message || "Something went wrong";
+    const status = error.status ?? 500;
+    const message = error.message ?? "Something went wrong";
     res.status(status).json({ message });
   }
 );
 
-const startServer = async () => {
+const startServer = async (): Promise<void> => {
   try {
     app.listen(process.env.PORT, () =>
       console.log(`Server started on port ${process.env.PORT}`)
@@ -77,4 +77,4 @@ const startServer = async () => {
   }
 };
 
-startServer();
+void startServer();
