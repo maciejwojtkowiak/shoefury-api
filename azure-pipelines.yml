@@ -2,7 +2,10 @@ trigger:
 - dev
 
 resources:
-- repo: self
+  pipelines:
+  - pipeline: shoefury 
+    source: shoefury 
+    
 
 variables:
   tag: '$(Build.BuildId)'
