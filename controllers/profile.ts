@@ -106,7 +106,6 @@ export const editProfile = async (
     next(createError("No user in request", 400));
     return;
   }
-  console.log("HEY", currentUser);
   const name = req.body.name;
   currentUser.name = name;
   await currentUser?.save();
