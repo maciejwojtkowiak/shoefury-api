@@ -1,4 +1,5 @@
 import mongoose, { Types } from "mongoose";
+import { IComment } from "types/Comment/Comment";
 
 interface IRating {
   reviewers: Types.ObjectId[];
@@ -12,4 +13,5 @@ export interface IProduct extends mongoose.Document {
   price: string;
   imageData: string;
   rating: IRating;
+  comments: IComment[];
 }

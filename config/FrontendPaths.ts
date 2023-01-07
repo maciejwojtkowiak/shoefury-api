@@ -1,3 +1,3 @@
 export enum FrontendPaths {
-    successOrder = "SUCCESS",
+  successOrder = "SUCCESS",
 }

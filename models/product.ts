@@ -33,6 +33,14 @@ const product = new Schema<IProduct>(
           required: false,
         },
       ],
+      comments: [
+        {
+          comment: {
+            type: Schema.Types.ObjectId,
+            ref: "Comment",
+          },
+        },
+      ],
     },
   },
   { collection: "products", timestamps: true }

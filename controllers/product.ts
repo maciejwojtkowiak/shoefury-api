@@ -6,6 +6,7 @@ import { getUser } from "../utils/user/getUser";
 import { findProduct } from "../utils/product/getProduct";
 import { IProduct } from "../types/Product/Product";
 import { IAuthUser } from "../types/Auth/Auth";
+import Comment from "models/comment";
 
 interface IAddReview extends IAuthUser {
   rate: number;
@@ -91,14 +92,16 @@ export const addReview = async (
   }
   const currentUser = await getUser(req.body.userId);
   if (currentUser === null) {
-    createError("User does not exist", 400);
+    createError("User does not exist", 404);
     return;
   }
   const reviewedProduct = await findProduct(productId);
+
   if (reviewedProduct === null) {
-    createError("Product does not exist", 400);
+    createError("Product does not exist", 404);
     return;
   }
+
   currentUser.reviewedProducts = [
     ...currentUser.reviewedProducts,
     { product: reviewedProduct._id, rate: review },
@@ -112,4 +115,19 @@ export const addReview = async (
   await reviewedProduct.save();
 
   res.status(201).json({ message: "Successfully reviewed" });
+};
+
+export const addComment = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  console.log("COMMENT");
+  const commentContent = req.body.commentContent;
+  const comment = new Comment({
+    userId: req.body.userId,
+    productId: req.body.productId,
+    commentContent,
+  });
+  await comment.save();
+  console.log(commentContent);
 };

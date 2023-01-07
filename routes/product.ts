@@ -1,6 +1,7 @@
 import express, { RequestHandler } from "express";
 
 import {
+  addComment,
   addProduct,
   addReview,
   getProduct,
@@ -24,6 +25,12 @@ router.post(
   "/add-review",
   isAuth as RequestHandler,
   addReview as RequestHandler
+);
+
+router.post(
+  "/add-comment",
+  isAuth as RequestHandler,
+  addComment as RequestHandler
 );
 
 export default router;
